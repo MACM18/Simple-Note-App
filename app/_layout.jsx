@@ -1,14 +1,13 @@
-import LoginScreen from ".";
-import RegisterScreen from "./register";
 import { Tabs } from "expo-router";
+import { AuthProvider } from "./context/AuthContext";
 
 const _layout = () => {
   return (
-    <Tabs>
-      <Tabs.Screen name='index' options={{ title: "Home" }} />
-      <Tabs.Screen name='register' />
-      <Tabs.Screen name='Weather' />
-    </Tabs>
+    <AuthProvider>
+      <Tabs>
+        <Tabs.Screen name='index' options={{ title: "Home" }} />
+      </Tabs>
+    </AuthProvider>
   );
 };
 

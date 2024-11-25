@@ -1,12 +1,7 @@
-import { AppProvider } from "./AppContext";
-import LoginComponent from "../components/LoginComponent";
+import HomePage from "./Screens/HomePage";
 
 const Home = () => {
-  return (
-    <AppProvider>
-      <LoginComponent />
-    </AppProvider>
-  );
+  return <HomePage />;
 };
 
 export default Home;
