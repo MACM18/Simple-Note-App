@@ -1,14 +1,20 @@
 // screens/ViewNotePage.js
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { AuthContext } from "../context/AuthContext";
+import { useSearchParams } from "expo-router/build/hooks";
 
-const ViewNote = ({ route }) => {
-  const { note } = route.params;
-
+const ViewNote = () => {
+  const { notes } = useContext(AuthContext);
+  const { note } = useSearchParams;
+  const selectedNote = notes.find(
+    (item) => item["id"] == (notes["id"] == undefined ? 1 : note["id"])
+  );
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{note.title}</Text>
-      <Text style={styles.content}>{note.content}</Text>
+      <Text style={styles.title}>{selectedNote.title}</Text>
+      <Text style={styles.content}>{selectedNote.description}</Text>
+      <Text style={styles.content}>{selectedNote.status}</Text>
     </View>
   );
 };

@@ -2,18 +2,22 @@
 import React, { useContext, useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import { useSearchParams } from "expo-router/build/hooks";
 
-const ModifyNote = ({ route, navigation }) => {
-  const { modifyNote } = useContext(AuthContext);
-  const { note } = route.params;
+const ModifyNote = () => {
+  const { modifyNote, notes } = useContext(AuthContext);
+  const { id } = useSearchParams;
 
-  const [title, setTitle] = useState(note.title);
-  const [content, setContent] = useState(note.content);
+  const selectedNote = notes.find(
+    (item) => item["id"] == (notes["id"] == undefined ? 1 : id)
+  );
+  const [title, setTitle] = useState(selectedNote.title);
+  const [content, setContent] = useState(selectedNote.content);
 
   const handleModifyNote = () => {
-    const updatedNote = { ...note, title, content };
-    modifyNote(note.id, updatedNote);
-    navigation.navigate("Home");
+    const updatedNote = { ...selectedNote, title, content };
+    modifyNote(selectedNote.id, updatedNote);
+    // navigation.navigate("Home");
   };
 
   return (
