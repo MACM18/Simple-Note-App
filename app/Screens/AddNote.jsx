@@ -12,9 +12,10 @@ import {
   Platform,
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import LoginPage from "./LoginPage";
 
 const AddNote = ({ navigation }) => {
-  const { addNote } = useContext(AuthContext);
+  const { addNote, user } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
@@ -48,27 +49,23 @@ const AddNote = ({ navigation }) => {
   };
 
   const handleClear = () => {
-    Alert.alert(
-      "Clear Form",
-      "Are you sure you want to clear all fields?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
+    Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Clear",
+        onPress: () => {
+          setTitle("");
+          setContent("");
+          setCategory("");
+          setPriority("medium");
+          setCharacterCount(0);
         },
-        {
-          text: "Clear",
-          onPress: () => {
-            setTitle("");
-            setContent("");
-            setCategory("");
-            setPriority("medium");
-            setCharacterCount(0);
-          },
-          style: "destructive"
-        }
-      ]
-    );
+        style: "destructive",
+      },
+    ]);
   };
 
   const handleCancel = () => {
@@ -79,22 +76,25 @@ const AddNote = ({ navigation }) => {
         [
           {
             text: "Cancel",
-            style: "cancel"
+            style: "cancel",
           },
           {
             text: "Discard",
             onPress: () => navigation.goBack(),
-            style: "destructive"
-          }
+            style: "destructive",
+          },
         ]
       );
     } else {
       navigation.goBack();
     }
   };
+  if (!user) {
+    return <LoginPage />;
+  }
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
@@ -103,29 +103,26 @@ const AddNote = ({ navigation }) => {
           <Text style={styles.headerText}>Create New Note</Text>
           <Text style={styles.headerSubText}>Add your thoughts...</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.clearButton}
-          onPress={handleClear}
-        >
+        <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.scrollView}>
         <TextInput
-          placeholder="Note Title"
+          placeholder='Note Title'
           value={title}
           onChangeText={setTitle}
           style={styles.titleInput}
-          placeholderTextColor="#666"
+          placeholderTextColor='#666'
           maxLength={50}
         />
 
         <TextInput
-          placeholder="Category (Optional)"
+          placeholder='Category (Optional)'
           value={category}
           onChangeText={setCategory}
           style={styles.categoryInput}
-          placeholderTextColor="#666"
+          placeholderTextColor='#666'
         />
 
         <View style={styles.priorityContainer}>
@@ -137,14 +134,23 @@ const AddNote = ({ navigation }) => {
                 style={[
                   styles.priorityButton,
                   priority === p && styles.priorityButtonActive,
-                  { backgroundColor: p === 'low' ? '#4CAF50' : p === 'medium' ? '#FFC107' : '#FF5252' }
+                  {
+                    backgroundColor:
+                      p === "low"
+                        ? "#4CAF50"
+                        : p === "medium"
+                        ? "#FFC107"
+                        : "#FF5252",
+                  },
                 ]}
                 onPress={() => setPriority(p)}
               >
-                <Text style={[
-                  styles.priorityButtonText,
-                  priority === p && styles.priorityButtonTextActive
-                ]}>
+                <Text
+                  style={[
+                    styles.priorityButtonText,
+                    priority === p && styles.priorityButtonTextActive,
+                  ]}
+                >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
                 </Text>
               </TouchableOpacity>
@@ -153,13 +159,13 @@ const AddNote = ({ navigation }) => {
         </View>
 
         <TextInput
-          placeholder="Note Content"
+          placeholder='Note Content'
           value={content}
           onChangeText={handleContentChange}
           style={styles.contentInput}
           multiline
-          placeholderTextColor="#666"
-          textAlignVertical="top"
+          placeholderTextColor='#666'
+          textAlignVertical='top'
         />
 
         <Text style={styles.characterCount}>

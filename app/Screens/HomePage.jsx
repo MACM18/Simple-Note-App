@@ -12,60 +12,60 @@ import {
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
+import LoginPage from "./LoginPage";
 
 const HomePage = () => {
-  const { user, notes, logout, loading } = useContext(AuthContext);
+  const { user, notes, logout, loading, setUser } = useContext(AuthContext);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    if (!loading && user == null) {
-      router.push("/Screens/LoginPage");
-    }
-  }, [user, loading]);
+  //   useEffect(() => {
+  //     if (!loading && user == null) {
+  //       router.push("/Screens/LoginPage");
+  //     }
+  //   }, [user, loading]);
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          onPress: logout,
-          style: "destructive"
-        }
-      ]
-    );
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: logout,
+        style: "destructive",
+      },
+    ]);
   };
 
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3949ab" />
+        <ActivityIndicator size='large' color='#3949ab' />
         <Text style={styles.loadingText}>Loading your notes...</Text>
       </View>
     );
   }
+  if (!user) {
+    return <LoginPage />;
+  }
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
-      case 'high':
-        return '#FF5252';
-      case 'medium':
-        return '#FFC107';
-      case 'low':
-        return '#4CAF50';
+      case "high":
+        return "#FF5252";
+      case "medium":
+        return "#FFC107";
+      case "low":
+        return "#4CAF50";
       default:
-        return '#FFC107';
+        return "#FFC107";
     }
   };
 
@@ -76,10 +76,7 @@ const HomePage = () => {
           <Text style={styles.headerText}>Welcome, {user?.username}!</Text>
           <Text style={styles.headerSubText}>Your Personal Notes</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -87,10 +84,10 @@ const HomePage = () => {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search notes..."
+          placeholder='Search notes...'
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor="#666"
+          placeholderTextColor='#666'
         />
       </View>
 
@@ -99,7 +96,9 @@ const HomePage = () => {
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No notes found</Text>
             <Text style={styles.emptyStateSubText}>
-              {searchQuery ? "Try a different search term" : "Start creating your first note!"}
+              {searchQuery
+                ? "Try a different search term"
+                : "Start creating your first note!"}
             </Text>
           </View>
         ) : (
@@ -113,24 +112,22 @@ const HomePage = () => {
                 <Text style={styles.noteTitle} numberOfLines={1}>
                   {item.title}
                 </Text>
-                <View 
+                <View
                   style={[
                     styles.priorityIndicator,
-                    { backgroundColor: getPriorityColor(item.priority) }
+                    { backgroundColor: getPriorityColor(item.priority) },
                   ]}
                 />
               </View>
-              
+
               {item.category && (
-                <Text style={styles.categoryText}>
-                  {item.category}
-                </Text>
+                <Text style={styles.categoryText}>{item.category}</Text>
               )}
-              
+
               <Text style={styles.noteContent} numberOfLines={2}>
                 {item.content}
               </Text>
-              
+
               <Text style={styles.dateText}>
                 {new Date(item.createdAt).toLocaleDateString()}
               </Text>

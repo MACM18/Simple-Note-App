@@ -1,0 +1,60 @@
+{
+  "notes": [
+    {
+      "id": 1,
+      "username": "user1",
+      "title": "Task 1",
+      "description": "This is task 1",
+      "status": "Not Started"
+    },
+    {
+      "id": 2,
+      "username": "user1",
+      "title": "Task 2",
+      "description": "This is task 2",
+      "status": "In Progress"
+    },
+    {
+      "id": 3,
+      "username": "user1",
+      "title": "Task 3",
+      "description": "This is task 3",
+      "status": "Completed"
+    },
+    {
+      "id": 4,
+      "username": "user2",
+      "title": "Task 4",
+      "description": "This is task 4",
+      "status": "Not Started"
+    },
+    {
+      "id": 5,
+      "username": "user2",
+      "title": "Task 5",
+      "description": "This is task 5",
+      "status": "In Progress"
+    },
+    {
+      "id": 6,
+      "username": "user2",
+      "title": "Task 6",
+      "description": "This is task 6",
+      "status": "Completed"
+    },
+    {
+      "id": 7,
+      "username": "user3",
+      "title": "Task 7",
+      "description": "This is task 7",
+      "status": "Not Started"
+    },
+    {
+      "id": 8,
+      "username": "user3",
+      "title": "Task 8",
+      "description": "This is task 8",
+      "status": "In Progress"
+    }
+  ]
+}

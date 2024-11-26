@@ -13,9 +13,10 @@ import {
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useSearchParams } from "expo-router/build/hooks";
+import LoginPage from "./LoginPage";
 
 const ModifyNote = ({ navigation }) => {
-  const { modifyNote, notes } = useContext(AuthContext);
+  const { modifyNote, notes, user } = useContext(AuthContext);
   const { id } = useSearchParams();
 
   const selectedNote = notes.find(
@@ -77,6 +78,9 @@ const ModifyNote = ({ navigation }) => {
     }
   };
 
+  if (!user) {
+    return <LoginPage />;
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -90,11 +94,11 @@ const ModifyNote = ({ navigation }) => {
       </View>
       <ScrollView style={styles.scrollView}>
         <TextInput
-          placeholder="Note Title"
+          placeholder='Note Title'
           value={title}
           onChangeText={setTitle}
           style={styles.titleInput}
-          placeholderTextColor="#666"
+          placeholderTextColor='#666'
           maxLength={50}
         />
 
@@ -136,13 +140,50 @@ const ModifyNote = ({ navigation }) => {
         </View>
 
         <TextInput
-          placeholder="Note Content"
+          placeholder="Category (Optional)"
+          value={category}
+          onChangeText={setCategory}
+          style={styles.categoryInput}
+          placeholderTextColor="#666"
+        />
+
+        <View style={styles.priorityContainer}>
+          <Text style={styles.priorityLabel}>Priority:</Text>
+          <View style={styles.priorityButtons}>
+            {priorities.map((p) => (
+              <TouchableOpacity
+                key={p}
+                style={[
+                  styles.priorityButton,
+                  priority === p && styles.priorityButtonActive,
+                  {
+                    backgroundColor:
+                      p === "low" ? "#4CAF50" : p === "medium" ? "#FFC107" : "#FF5252",
+                  },
+                ]}
+                onPress={() => setPriority(p)}
+              >
+                <Text
+                  style={[
+                    styles.priorityButtonText,
+                    priority === p && styles.priorityButtonTextActive,
+                  ]}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <TextInput
+          placeholder='Note Content'
           value={content}
           onChangeText={handleContentChange}
           style={styles.contentInput}
           multiline
-          placeholderTextColor="#666"
-          textAlignVertical="top"
+          placeholderTextColor='#666'
+          textAlignVertical='top'
         />
 
         <Text style={styles.characterCount}>

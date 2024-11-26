@@ -2,35 +2,35 @@ import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useSearchParams } from "expo-router/build/hooks";
+import LoginPage from "./LoginPage";
 
 const ViewNote = ({ navigation }) => {
-  const { notes } = useContext(AuthContext);
+  const { notes, user } = useContext(AuthContext);
   const { note } = useSearchParams();
   const selectedNote = notes.find((item) => item.id == (note?.id || 1));
 
   const handleDelete = () => {
-    Alert.alert(
-      "Delete Note",
-      "Are you sure you want to delete this note?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            // Placeholder delete logic
-            Alert.alert("Deleted", "Note has been deleted.");
-            navigation.goBack();
-          },
+    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          // Placeholder delete logic
+          Alert.alert("Deleted", "Note has been deleted.");
+          navigation.goBack();
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleCreateNote = () => {
     navigation.navigate("AddNote");
   };
 
+  if (!user) {
+    return <LoginPage />;
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
