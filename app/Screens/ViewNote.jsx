@@ -1,4 +1,3 @@
-// screens/ViewNotePage.js
 import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { AuthContext } from "../context/AuthContext";
@@ -35,26 +34,27 @@ const ViewNote = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>View Note</Text>
         <TouchableOpacity style={styles.createButton} onPress={handleCreateNote}>
           <Text style={styles.createButtonText}>Create Note</Text>
         </TouchableOpacity>
+        <Text style={styles.headerText}>View Note</Text>
       </View>
 
       <View style={styles.noteContainer}>
-        <Text style={styles.title}>{selectedNote?.title || "Untitled"}</Text>
-        <Text style={styles.category}>
-          {selectedNote?.category || "No Category"}
-        </Text>
-        <Text style={styles.priority}>
-          Priority: {selectedNote?.priority?.toUpperCase() || "Medium"}
-        </Text>
-        <Text style={styles.content}>
-          {selectedNote?.description || "No content available."}
-        </Text>
-
+        <View style={styles.noteContent}>
+          <Text style={styles.title}>{selectedNote?.title || "Untitled"}</Text>
+          <Text style={styles.category}>
+            {selectedNote?.category || "No Category"}
+          </Text>
+          <Text style={styles.priority}>
+            Priority: {selectedNote?.priority?.toUpperCase() || "Medium"}
+          </Text>
+          <Text style={styles.content}>
+            {selectedNote?.description || "No content available."}
+          </Text>
+        </View>
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteButtonText}>Delete Note</Text>
+          <Text style={styles.deleteIcon}>🗑️</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
     padding: 12,
-    backgroundColor: "#3949ab", // Matching color scheme
+    backgroundColor: "#3949ab",
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -82,9 +82,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerText: {
+    flex: 1,
     fontSize: 20,
     fontWeight: "bold",
     color: "#ffffff",
+    textAlign: "center",
   },
   createButton: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
@@ -100,6 +102,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   noteContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: "#ffffff",
     padding: 16,
     borderRadius: 8,
@@ -108,6 +113,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+  },
+  noteContent: {
+    flex: 1,
+    marginRight: 8, // Add space between content and delete button
   },
   title: {
     fontSize: 24,
@@ -135,15 +144,14 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: "#FF5252",
-    paddingVertical: 12,
+    padding: 8,
     borderRadius: 8,
-    marginTop: 8,
     alignItems: "center",
+    justifyContent: "center",
   },
-  deleteButtonText: {
+  deleteIcon: {
     color: "#ffffff",
     fontSize: 16,
-    fontWeight: "bold",
   },
 });
 

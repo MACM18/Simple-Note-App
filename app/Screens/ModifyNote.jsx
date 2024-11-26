@@ -3,7 +3,6 @@ import React, { useContext, useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
   TouchableOpacity,
   Text,
@@ -22,9 +21,14 @@ const ModifyNote = ({ navigation }) => {
   const selectedNote = notes.find(
     (item) => item["id"] === (notes["id"] === undefined ? 1 : id)
   );
+
   const [title, setTitle] = useState(selectedNote.title || "");
   const [content, setContent] = useState(selectedNote.content || "");
+  const [category, setCategory] = useState(selectedNote.category || "");
+  const [priority, setPriority] = useState(selectedNote.priority || "medium");
   const [characterCount, setCharacterCount] = useState(content.length);
+
+  const priorities = ["low", "medium", "high"];
 
   const handleContentChange = (text) => {
     setContent(text);
@@ -33,7 +37,14 @@ const ModifyNote = ({ navigation }) => {
 
   const handleModifyNote = () => {
     if (title.trim() && content.trim()) {
-      const updatedNote = { ...selectedNote, title: title.trim(), content: content.trim() };
+      const updatedNote = {
+        ...selectedNote,
+        title: title.trim(),
+        content: content.trim(),
+        category: category.trim(),
+        priority,
+        lastModified: new Date().toISOString(),
+      };
       modifyNote(selectedNote.id, updatedNote);
       Alert.alert("Success", "Note updated successfully!");
       navigation.goBack();
@@ -43,7 +54,12 @@ const ModifyNote = ({ navigation }) => {
   };
 
   const handleCancel = () => {
-    if (title !== selectedNote.title || content !== selectedNote.content) {
+    if (
+      title !== selectedNote.title ||
+      content !== selectedNote.content ||
+      category !== selectedNote.category ||
+      priority !== selectedNote.priority
+    ) {
       Alert.alert(
         "Discard Changes",
         "Are you sure you want to discard your changes?",
@@ -81,6 +97,43 @@ const ModifyNote = ({ navigation }) => {
           placeholderTextColor="#666"
           maxLength={50}
         />
+
+        <TextInput
+          placeholder="Category (Optional)"
+          value={category}
+          onChangeText={setCategory}
+          style={styles.categoryInput}
+          placeholderTextColor="#666"
+        />
+
+        <View style={styles.priorityContainer}>
+          <Text style={styles.priorityLabel}>Priority:</Text>
+          <View style={styles.priorityButtons}>
+            {priorities.map((p) => (
+              <TouchableOpacity
+                key={p}
+                style={[
+                  styles.priorityButton,
+                  priority === p && styles.priorityButtonActive,
+                  {
+                    backgroundColor:
+                      p === "low" ? "#4CAF50" : p === "medium" ? "#FFC107" : "#FF5252",
+                  },
+                ]}
+                onPress={() => setPriority(p)}
+              >
+                <Text
+                  style={[
+                    styles.priorityButtonText,
+                    priority === p && styles.priorityButtonTextActive,
+                  ]}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
         <TextInput
           placeholder="Note Content"
@@ -163,6 +216,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
     color: "#333",
+  },
+  categoryInput: {
+    height: 50,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: "#fff",
+    color: "#333",
+  },
+  priorityContainer: {
+    marginBottom: 12,
+  },
+  priorityLabel: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#333",
+  },
+  priorityButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  priorityButton: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    opacity: 0.7,
+  },
+  priorityButtonActive: {
+    opacity: 1,
+  },
+  priorityButtonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  priorityButtonTextActive: {
+    color: "#fff",
   },
   contentInput: {
     height: 200,

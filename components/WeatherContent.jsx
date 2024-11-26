@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Image,
 } from "react-native";
 import * as Location from "expo-location";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const API_KEY = "910c4c3a7e949a9954a256e8551abf2f";
 
@@ -73,9 +73,29 @@ export default function App() {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const getWeatherImage = (weatherMain) => {
+    switch (weatherMain.toLowerCase()) {
+      case "thunderstorm":
+        return require("../assets/images/1.png");
+      case "clouds":
+        return require("../assets/images/4.png");
+      case "clear":
+        return require("../assets/images/3.png");
+      case "rain":
+      case "drizzle":
+        return require("../assets/images/5.png");
+      default:
+        return require("../assets/images/2.png"); // Partially cloudy or default
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Weather App</Text>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Weather App</Text>
+      </View>
+
       <TextInput
         style={styles.input}
         placeholder="Enter location"
@@ -96,10 +116,9 @@ export default function App() {
       {weatherData && (
         <ScrollView contentContainerStyle={styles.weatherContainer}>
           <Text style={styles.city}>{weatherData.name}</Text>
-          <MaterialCommunityIcons
-            name={`weather-${weatherData.weather[0].main.toLowerCase()}`}
-            size={100}
-            color="#3949ab"
+          <Image
+            source={getWeatherImage(weatherData.weather[0].main)}
+            style={styles.weatherImage}
           />
           <Text style={styles.temp}>
             {weatherData.main.temp}°{unit === "metric" ? "C" : "F"}
@@ -108,7 +127,9 @@ export default function App() {
           <Text style={styles.details}>Feels like: {weatherData.main.feels_like}°</Text>
           <Text style={styles.details}>Pressure: {weatherData.main.pressure} hPa</Text>
           <Text style={styles.details}>Humidity: {weatherData.main.humidity}%</Text>
-          <Text style={styles.details}>Wind: {weatherData.wind.speed} {unit === "metric" ? "m/s" : "mph"}</Text>
+          <Text style={styles.details}>
+            Wind: {weatherData.wind.speed} {unit === "metric" ? "m/s" : "mph"}
+          </Text>
           <Text style={styles.details}>Sunrise: {formatTime(weatherData.sys.sunrise)}</Text>
           <Text style={styles.details}>Sunset: {formatTime(weatherData.sys.sunset)}</Text>
         </ScrollView>
@@ -123,12 +144,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     padding: 20,
   },
-  title: {
+  header: {
+    backgroundColor: "#3949ab",
+    padding: 20,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#3949ab",
+    color: "#fff",
   },
   input: {
     height: 50,
@@ -172,6 +198,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
+    marginBottom: 10,
+  },
+  weatherImage: {
+    width: 100,
+    height: 100,
     marginBottom: 10,
   },
   temp: {
