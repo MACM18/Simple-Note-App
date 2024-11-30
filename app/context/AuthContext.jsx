@@ -4,31 +4,57 @@ import axios from "axios";
 
 export const AuthContext = createContext();
 
-const API_URL = "http://localhost:3000/notes"; // Adjust this URL if needed
+const API_URL = "http://localhost:3000/notes"; // Updated API URL
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState("null");
+  const [user, setUser] = useState("");
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState([]);
+  const [users, setUsers] = useState([
+    {
+      username: "admin",
+      password: "admin",
+    },
+  ]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
       const storedUser = await AsyncStorage.getItem("user");
       if (storedUser) {
         setUser(JSON.parse(storedUser));
-        // fetchUserNotes(JSON.parse(storedUser).username); // Fetch notes for the logged-in user
-        fetchUserNotes("user1"); // Fetch notes for the logged-in user
+        fetchUserNotes(JSON.parse(storedUser).username); // Fetch notes for the logged-in user
       }
+      fetchUserNotes("aaaa");
       setLoading(false);
     };
 
     checkAuthStatus();
   }, []);
 
-  const login = async (userData) => {
-    setUser(userData);
-    await AsyncStorage.setItem("user", JSON.stringify(userData));
-    fetchUserNotes(userData.username); // Fetch notes for the logged-in user
+  const register = (username, password) => {
+    // Check if the user already exists
+    const existingUser = users.find((user) => user.username === username);
+    if (existingUser) {
+      throw new Error("User  already exists");
+    }
+    // Add the new user to the users array
+    const newUser = { username, password };
+    setUsers([...users, newUser]);
+  };
+
+  const login = (username, password) => {
+    console.log(users);
+    // Check if the username and password match any user in the users state
+    const existingUser = users.find(
+      (user) => user.username === username && user.password === password
+    );
+    if (existingUser) {
+      setUser(existingUser);
+      AsyncStorage.setItem("user", JSON.stringify(existingUser));
+      fetchUserNotes(existingUser.username); // Fetch notes for the logged-in user
+    } else {
+      throw new Error("Invalid username or password");
+    }
   };
 
   const logout = async () => {
@@ -38,12 +64,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const fetchUserNotes = async (username) => {
-    const response = await axios.get(API_URL);
-    const userNotes = response.data.filter(
-      (note) => note.username === username
-    );
-    console.log(userNotes);
-    setNotes(userNotes);
+    const response = await axios.get(`${API_URL}/${username}`); // Fetch notes by username
+    // const response = await axios.get(`${API_URL}`); // Fetch notes by username
+    setNotes(response.data);
+    console.log(`${API_URL}/${username}`);
   };
 
   const addNote = async (note) => {
@@ -65,6 +89,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        register,
         login,
         logout,
         notes,

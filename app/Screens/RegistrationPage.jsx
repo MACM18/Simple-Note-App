@@ -1,5 +1,5 @@
 // screens/RegistrationPage.js
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import {
   View,
   TextInput,
@@ -13,8 +13,11 @@ import {
   Easing,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { AuthContext } from "../context/AuthContext";
+import { useRouter } from "expo-router";
+import AlertComponent from "../../components/AlertComponent";
 
-const RegistrationPage = ({ navigation }) => {
+const RegistrationPage = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -22,6 +25,10 @@ const RegistrationPage = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const { register } = useContext(AuthContext);
+  const [alertVisibility, setAlertVisibility] = useState(false);
+
+  const router = useRouter();
 
   const scaleValue = useRef(new Animated.Value(0)).current;
 
@@ -42,8 +49,9 @@ const RegistrationPage = ({ navigation }) => {
     if (password !== confirmPassword) {
       setError("Passwords don't match");
     } else {
-      Alert.alert("Success", "Registration complete!");
-      navigation.navigate("Login");
+      register(username, password);
+      router.push("/Screens/LoginPage");
+      setAlertVisibility(false);
     }
   };
 
@@ -64,8 +72,19 @@ const RegistrationPage = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}
+      style={[
+        styles.container,
+        { backgroundColor: themeStyles.backgroundColor },
+      ]}
     >
+      <AlertComponent
+        title={`Confirm user ${username}`}
+        button={"Create"}
+        description={"Are you sure you want to create this account ?"}
+        onConfirm={handleRegistration}
+        onClose={() => setAlertVisibility(false)}
+        visible={alertVisibility}
+      />
       {/* Header Section */}
       <View style={[styles.header, { backgroundColor: "#3949ab" }]}>
         <Animated.Text
@@ -87,7 +106,7 @@ const RegistrationPage = ({ navigation }) => {
           <Icon
             name={isDarkTheme ? "sunny" : "moon"}
             size={24}
-            color="#ffffff"
+            color='#ffffff'
           />
         </TouchableOpacity>
       </View>
@@ -95,7 +114,7 @@ const RegistrationPage = ({ navigation }) => {
       {/* Form Section */}
       <View style={styles.form}>
         <TextInput
-          placeholder="Name"
+          placeholder='Name'
           value={name}
           onChangeText={setName}
           style={[
@@ -108,7 +127,7 @@ const RegistrationPage = ({ navigation }) => {
           placeholderTextColor={themeStyles.placeholderColor}
         />
         <TextInput
-          placeholder="Username"
+          placeholder='Username'
           value={username}
           onChangeText={setUsername}
           style={[
@@ -121,7 +140,7 @@ const RegistrationPage = ({ navigation }) => {
           placeholderTextColor={themeStyles.placeholderColor}
         />
         <TextInput
-          placeholder="Email"
+          placeholder='Email'
           value={email}
           onChangeText={setEmail}
           style={[
@@ -132,10 +151,10 @@ const RegistrationPage = ({ navigation }) => {
             },
           ]}
           placeholderTextColor={themeStyles.placeholderColor}
-          keyboardType="email-address"
+          keyboardType='email-address'
         />
         <TextInput
-          placeholder="Password"
+          placeholder='Password'
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -149,7 +168,7 @@ const RegistrationPage = ({ navigation }) => {
           placeholderTextColor={themeStyles.placeholderColor}
         />
         <TextInput
-          placeholder="Confirm Password"
+          placeholder='Confirm Password'
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -168,13 +187,13 @@ const RegistrationPage = ({ navigation }) => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, styles.registerButton]}
-            onPress={handleRegistration}
+            onPress={() => setAlertVisibility(true)}
           >
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.backButton]}
-            onPress={() => navigation.navigate("Login")}
+            onPress={() => router.push("/Screens/LoginPage")}
           >
             <Text style={styles.buttonText}>Back to Login</Text>
           </TouchableOpacity>

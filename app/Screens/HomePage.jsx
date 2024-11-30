@@ -8,14 +8,14 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
-  Alert,
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import LoginPage from "./LoginPage";
+import AlertComponent from "../../components/AlertComponent";
 
 const HomePage = () => {
-  const { user, notes, logout, loading, setUser } = useContext(AuthContext);
+  const { user, notes, logout, loading } = useContext(AuthContext);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   //   useEffect(() => {
@@ -24,18 +24,18 @@ const HomePage = () => {
   //     }
   //   }, [user, loading]);
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: logout,
-        style: "destructive",
-      },
-    ]);
+    setModalVisible(true); // Show the modal
+  };
+
+  const logoutFunction = () => {
+    // Your logout logic here
+    console.log("User  logged out");
+    setModalVisible(false); // Close the modal after logout
+    logout();
+    router.push("/Screens/LoginPage");
   };
 
   const filteredNotes = notes.filter(
@@ -71,6 +71,14 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
+      <AlertComponent
+        title={"Logout"}
+        button={"Logout"}
+        description={"Are you sure you want to logout?"}
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)} // Close modal without logging out
+        onConfirm={logoutFunction} // Call logout function
+      />
       <View style={styles.topBar}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Welcome, {user?.username}!</Text>
@@ -106,7 +114,7 @@ const HomePage = () => {
             <TouchableOpacity
               key={item.id}
               style={styles.noteCard}
-              onPress={() => router.push("/Screens/ViewNote", { note: item })}
+              onPress={() => router.push(`/Screens/Note/${item.id}`)}
             >
               <View style={styles.noteHeader}>
                 <Text style={styles.noteTitle} numberOfLines={1}>
@@ -128,9 +136,7 @@ const HomePage = () => {
                 {item.content}
               </Text>
 
-              <Text style={styles.dateText}>
-                {new Date(item.createdAt).toLocaleDateString()}
-              </Text>
+              <Text style={styles.dateText}>{item.status}</Text>
             </TouchableOpacity>
           ))
         )}

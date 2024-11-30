@@ -1,13 +1,15 @@
 import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { AuthContext } from "../context/AuthContext";
-import { useSearchParams } from "expo-router/build/hooks";
-import LoginPage from "./LoginPage";
+import { AuthContext } from "../../context/AuthContext";
 
-const ViewNote = ({ navigation }) => {
+import LoginPage from "../LoginPage";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+const ViewNote = () => {
   const { notes, user } = useContext(AuthContext);
-  const { note } = useSearchParams();
-  const selectedNote = notes.find((item) => item.id == (note?.id || 1));
+  const { id } = useLocalSearchParams();
+  const selectedNote = notes.find((item) => item.id == (id || 1));
+  const router = useRouter();
 
   const handleDelete = () => {
     Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
@@ -34,7 +36,10 @@ const ViewNote = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.createButton} onPress={handleCreateNote}>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={handleCreateNote}
+        >
           <Text style={styles.createButtonText}>Create Note</Text>
         </TouchableOpacity>
         <Text style={styles.headerText}>View Note</Text>
@@ -42,19 +47,25 @@ const ViewNote = ({ navigation }) => {
 
       <View style={styles.noteContainer}>
         <View style={styles.noteContent}>
-          <Text style={styles.title}>{selectedNote?.title || "Untitled"}</Text>
+          <Text style={styles.title}>{selectedNote.title || "Untitled"}</Text>
           <Text style={styles.category}>
-            {selectedNote?.category || "No Category"}
+            {selectedNote.category || "No Category"}
           </Text>
           <Text style={styles.priority}>
-            Priority: {selectedNote?.priority?.toUpperCase() || "Medium"}
+            Priority: {selectedNote.priority.toUpperCase() || "Medium"}
           </Text>
           <Text style={styles.content}>
-            {selectedNote?.description || "No content available."}
+            {selectedNote.content || "No content available."}
           </Text>
         </View>
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
           <Text style={styles.deleteIcon}>🗑️</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => router.push(`./Edit/${selectedNote.id}`)}
+        >
+          <Text style={styles.deleteIcon}>📝</Text>
         </TouchableOpacity>
       </View>
     </View>

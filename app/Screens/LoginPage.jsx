@@ -11,18 +11,20 @@ import {
   Image,
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import { useRouter } from "expo-router";
 
-const LoginPage = ({ navigation }) => {
+const LoginPage = () => {
   const { login } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleLogin = () => {
     if (username.trim() && password.trim()) {
-      login(username.trim());
-      navigation.navigate("Home");
+      login(username.trim(), password.trim());
+      router.push("/");
     } else {
       Alert.alert("Error", "Please fill in all fields");
     }
@@ -30,25 +32,21 @@ const LoginPage = ({ navigation }) => {
 
   const handleClear = () => {
     if (username || password) {
-      Alert.alert(
-        "Clear Form",
-        "Are you sure you want to clear all fields?",
-        [
-          {
-            text: "Cancel",
-            style: "cancel"
+      Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          onPress: () => {
+            setUsername("");
+            setPassword("");
+            setError("");
           },
-          {
-            text: "Clear",
-            onPress: () => {
-              setUsername("");
-              setPassword("");
-              setError("");
-            },
-            style: "destructive"
-          }
-        ]
-      );
+          style: "destructive",
+        },
+      ]);
     }
   };
 
@@ -62,10 +60,7 @@ const LoginPage = ({ navigation }) => {
           <Text style={styles.headerText}>Welcome Back</Text>
           <Text style={styles.headerSubText}>Sign in to continue...</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.clearButton}
-          onPress={handleClear}
-        >
+        <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
@@ -74,12 +69,12 @@ const LoginPage = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Username</Text>
           <TextInput
-            placeholder="Enter your username"
+            placeholder='Enter your username'
             value={username}
             onChangeText={setUsername}
             style={styles.input}
-            placeholderTextColor="#666"
-            autoCapitalize="none"
+            placeholderTextColor='#666'
+            autoCapitalize='none'
           />
         </View>
 
@@ -87,12 +82,12 @@ const LoginPage = ({ navigation }) => {
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              placeholder="Enter your password"
+              placeholder='Enter your password'
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               style={styles.passwordInput}
-              placeholderTextColor="#666"
+              placeholderTextColor='#666'
             />
             <TouchableOpacity
               style={styles.eyeIcon}
@@ -117,7 +112,7 @@ const LoginPage = ({ navigation }) => {
 
           <TouchableOpacity
             style={[styles.button, styles.registerButton]}
-            onPress={() => navigation.navigate("Registration")}
+            onPress={() => router.push("/Screens/RegistrationPage")}
           >
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
@@ -125,7 +120,7 @@ const LoginPage = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.forgotPassword}
-          onPress={() => navigation.navigate("ForgotPassword")}
+          onPress={() => "Remember the password Idiot"}
         >
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>

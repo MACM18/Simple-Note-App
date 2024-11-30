@@ -11,18 +11,17 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { AuthContext } from "../context/AuthContext";
-import { useSearchParams } from "expo-router/build/hooks";
-import LoginPage from "./LoginPage";
+import { AuthContext } from "../../../context/AuthContext";
 
-const ModifyNote = ({ navigation }) => {
+import LoginPage from "../../LoginPage";
+import { useLocalSearchParams } from "expo-router";
+
+const ModifyNote = () => {
   const { modifyNote, notes, user } = useContext(AuthContext);
-  const { id } = useSearchParams();
+  const { id } = useLocalSearchParams();
 
-  const selectedNote = notes.find(
-    (item) => item["id"] === (notes["id"] === undefined ? 1 : id)
-  );
-
+  const selectedNote = notes.find((item) => item.id == (id || 1));
+  console.log(notes);
   const [title, setTitle] = useState(selectedNote.title || "");
   const [content, setContent] = useState(selectedNote.content || "");
   const [category, setCategory] = useState(selectedNote.category || "");
@@ -103,11 +102,11 @@ const ModifyNote = ({ navigation }) => {
         />
 
         <TextInput
-          placeholder="Category (Optional)"
+          placeholder='Category (Optional)'
           value={category}
           onChangeText={setCategory}
           style={styles.categoryInput}
-          placeholderTextColor="#666"
+          placeholderTextColor='#666'
         />
 
         <View style={styles.priorityContainer}>
@@ -121,44 +120,11 @@ const ModifyNote = ({ navigation }) => {
                   priority === p && styles.priorityButtonActive,
                   {
                     backgroundColor:
-                      p === "low" ? "#4CAF50" : p === "medium" ? "#FFC107" : "#FF5252",
-                  },
-                ]}
-                onPress={() => setPriority(p)}
-              >
-                <Text
-                  style={[
-                    styles.priorityButtonText,
-                    priority === p && styles.priorityButtonTextActive,
-                  ]}
-                >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <TextInput
-          placeholder="Category (Optional)"
-          value={category}
-          onChangeText={setCategory}
-          style={styles.categoryInput}
-          placeholderTextColor="#666"
-        />
-
-        <View style={styles.priorityContainer}>
-          <Text style={styles.priorityLabel}>Priority:</Text>
-          <View style={styles.priorityButtons}>
-            {priorities.map((p) => (
-              <TouchableOpacity
-                key={p}
-                style={[
-                  styles.priorityButton,
-                  priority === p && styles.priorityButtonActive,
-                  {
-                    backgroundColor:
-                      p === "low" ? "#4CAF50" : p === "medium" ? "#FFC107" : "#FF5252",
+                      p === "low"
+                        ? "#4CAF50"
+                        : p === "medium"
+                        ? "#FFC107"
+                        : "#FF5252",
                   },
                 ]}
                 onPress={() => setPriority(p)}
