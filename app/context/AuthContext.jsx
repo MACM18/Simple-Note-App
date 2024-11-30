@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       password: "admin",
     },
   ]);
+  const [alert, setAlert] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -24,7 +25,6 @@ export const AuthProvider = ({ children }) => {
         setUser(JSON.parse(storedUser));
         fetchUserNotes(JSON.parse(storedUser).username); // Fetch notes for the logged-in user
       }
-      fetchUserNotes("aaaa");
       setLoading(false);
     };
 
@@ -70,6 +70,12 @@ export const AuthProvider = ({ children }) => {
     console.log(`${API_URL}/${username}`);
   };
 
+  const fetchNotes = async () => {
+    if (user) {
+      await fetchUserNotes(user.username); // Fetch notes for the current user
+    }
+  };
+
   const addNote = async (note) => {
     const response = await axios.post(API_URL, note);
     setNotes([...notes, response.data]);
@@ -97,6 +103,9 @@ export const AuthProvider = ({ children }) => {
         modifyNote,
         deleteNote,
         loading,
+        alert,
+        setAlert,
+        fetchNotes,
       }}
     >
       {children}

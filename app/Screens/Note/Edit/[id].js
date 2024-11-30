@@ -14,10 +14,11 @@ import {
 import { AuthContext } from "../../../context/AuthContext";
 
 import LoginPage from "../../LoginPage";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import AlertComponent from "../../../../components/AlertComponent";
 
 const ModifyNote = () => {
-  const { modifyNote, notes, user } = useContext(AuthContext);
+  const { modifyNote, notes, user, alert, setAlert } = useContext(AuthContext);
   const { id } = useLocalSearchParams();
 
   const selectedNote = notes.find((item) => item.id == (id || 1));
@@ -27,7 +28,7 @@ const ModifyNote = () => {
   const [category, setCategory] = useState(selectedNote.category || "");
   const [priority, setPriority] = useState(selectedNote.priority || "medium");
   const [characterCount, setCharacterCount] = useState(content.length);
-
+  const router = useRouter();
   const priorities = ["low", "medium", "high"];
 
   const handleContentChange = (text) => {
@@ -46,10 +47,11 @@ const ModifyNote = () => {
         lastModified: new Date().toISOString(),
       };
       modifyNote(selectedNote.id, updatedNote);
-      Alert.alert("Success", "Note updated successfully!");
-      navigation.goBack();
+      setAlert(false);
+      console.log({ Success: "Note updated successfully!" });
+      router.push("/Screens/HomePage");
     } else {
-      Alert.alert("Error", "Title and content cannot be empty!");
+      setAlert(false);
     }
   };
 
@@ -60,23 +62,14 @@ const ModifyNote = () => {
       category !== selectedNote.category ||
       priority !== selectedNote.priority
     ) {
-      Alert.alert(
-        "Discard Changes",
-        "Are you sure you want to discard your changes?",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Discard",
-            onPress: () => navigation.goBack(),
-            style: "destructive",
-          },
-        ]
-      );
+      setAlert(true);
+      router.push("Screens/HomePage");
     } else {
-      navigation.goBack();
     }
   };
-
+  const confirmCancel = () => {
+    setAlert(false);
+  };
   if (!user) {
     return <LoginPage />;
   }
@@ -85,6 +78,14 @@ const ModifyNote = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      <AlertComponent
+        visible={alert}
+        description={"Do you want to discard the changes"}
+        title={"Discard Changes"}
+        button={"Discard"}
+        onConfirm={confirmCancel}
+        onClose={() => setAlert(false)}
+      />
       <View style={styles.topBar}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Modify Note</Text>

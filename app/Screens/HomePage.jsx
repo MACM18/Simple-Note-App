@@ -13,9 +13,8 @@ import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import LoginPage from "./LoginPage";
 import AlertComponent from "../../components/AlertComponent";
-
 const HomePage = () => {
-  const { user, notes, logout, loading } = useContext(AuthContext);
+  const { user, notes, logout, loading, fetchNotes } = useContext(AuthContext);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   //   useEffect(() => {
@@ -25,7 +24,6 @@ const HomePage = () => {
   //   }, [user, loading]);
 
   const [modalVisible, setModalVisible] = useState(false);
-
   const handleLogout = () => {
     setModalVisible(true); // Show the modal
   };
@@ -68,7 +66,9 @@ const HomePage = () => {
         return "#FFC107";
     }
   };
-
+  const refreshNotes = () => {
+    fetchNotes();
+  };
   return (
     <View style={styles.container}>
       <AlertComponent
@@ -97,6 +97,11 @@ const HomePage = () => {
           onChangeText={setSearchQuery}
           placeholderTextColor='#666'
         />
+      </View>
+      <View style={styles.refresh}>
+        <TouchableOpacity style={styles.refreshBtn} onPress={refreshNotes}>
+          <Text>Refresh</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView}>
@@ -323,6 +328,25 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: "#fff",
     marginTop: -2,
+  },
+  refresh: {
+    padding: 16,
+    display: "flex",
+    alignItems: "flex-end",
+  },
+  refreshBtn: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 2,
   },
 });
 

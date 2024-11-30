@@ -1,29 +1,27 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 
 import LoginPage from "../LoginPage";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import AlertComponent from "../../../components/AlertComponent";
 
 const ViewNote = () => {
-  const { notes, user } = useContext(AuthContext);
+  const { notes, user, deleteNote, alert, setAlert, fetchNotes } =
+    useContext(AuthContext);
   const { id } = useLocalSearchParams();
   const selectedNote = notes.find((item) => item.id == (id || 1));
   const router = useRouter();
-
   const handleDelete = () => {
-    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-          // Placeholder delete logic
-          Alert.alert("Deleted", "Note has been deleted.");
-          navigation.goBack();
-        },
-      },
-    ]);
+    deleteNote(id);
+    console.log({
+      message: "note deleted",
+      noteId: selectedNote.id,
+      notes: notes,
+    });
+    fetchNotes();
+    router.push("/");
+    setAlert(false);
   };
 
   const handleCreateNote = () => {
@@ -35,6 +33,14 @@ const ViewNote = () => {
   }
   return (
     <View style={styles.container}>
+      <AlertComponent
+        title={"Delete Note"}
+        description={`Are you sure you want to delete the task`}
+        button={"delete"}
+        visible={alert}
+        onClose={() => setAlert(false)}
+        onConfirm={handleDelete}
+      />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.createButton}
@@ -47,26 +53,31 @@ const ViewNote = () => {
 
       <View style={styles.noteContainer}>
         <View style={styles.noteContent}>
-          <Text style={styles.title}>{selectedNote.title || "Untitled"}</Text>
+          <Text style={styles.title}>{selectedNote?.title || "Untitled"}</Text>
           <Text style={styles.category}>
-            {selectedNote.category || "No Category"}
+            {selectedNote?.category || "No Category"}
           </Text>
           <Text style={styles.priority}>
-            Priority: {selectedNote.priority.toUpperCase() || "Medium"}
+            Priority: {selectedNote?.priority.toUpperCase() || "Medium"}
           </Text>
           <Text style={styles.content}>
-            {selectedNote.content || "No content available."}
+            {selectedNote?.content || "No content available."}
           </Text>
         </View>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteIcon}>🗑️</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => router.push(`./Edit/${selectedNote.id}`)}
-        >
-          <Text style={styles.deleteIcon}>📝</Text>
-        </TouchableOpacity>
+        <View style={styles.rightBtnSection}>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => setAlert(true)}
+          >
+            <Text style={styles.deleteIcon}>🗑️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push(`./Edit/${selectedNote.id}`)}
+          >
+            <Text style={styles.deleteIcon}>📝</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -153,8 +164,21 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 16,
   },
+  rightBtnSection: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    rowGap: 4,
+  },
   deleteButton: {
     backgroundColor: "#FF5252",
+    padding: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editButton: {
+    backgroundColor: "#00dd00",
     padding: 8,
     borderRadius: 8,
     alignItems: "center",
