@@ -44,11 +44,12 @@ export const AuthProvider = ({ children }) => {
     // Check if the user already exists
     const existingUser = users.find((user) => user.username === username);
     if (existingUser) {
-      throw new Error("User  already exists");
+      return false;
     }
     // Add the new user to the users array
     const newUser = { username, password };
     setUsers([...users, newUser]);
+    return true;
   };
 
   const login = (username, password) => {
@@ -61,8 +62,9 @@ export const AuthProvider = ({ children }) => {
       setUser(existingUser);
       AsyncStorage.setItem("user", JSON.stringify(existingUser));
       fetchUserNotes(existingUser.username); // Fetch notes for the logged-in user
+      return true;
     } else {
-      throw new Error("Invalid username or password");
+      return false;
     }
   };
 

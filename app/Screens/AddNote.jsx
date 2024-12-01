@@ -12,7 +12,9 @@ import {
   Platform,
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import NotificationComponent from "../../components/NotificationComponent";
 import LoginPage from "./LoginPage";
+import { useRouter } from "expo-router";
 
 const AddNote = ({ navigation }) => {
   const { addNote, user } = useContext(AuthContext);
@@ -21,6 +23,9 @@ const AddNote = ({ navigation }) => {
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("medium");
   const [characterCount, setCharacterCount] = useState(0);
+  const [notification, setNotification] = useState(false);
+
+  const router = useRouter();
 
   const priorities = ["low", "medium", "high"];
 
@@ -36,7 +41,7 @@ const AddNote = ({ navigation }) => {
         lastModified: new Date().toISOString(),
       };
       addNote(newNote);
-      Alert.alert("Success", "Note added successfully!");
+      setNotification(true);
       navigation.navigate("Home");
     } else {
       Alert.alert("Error", "Title and content are required!");
@@ -69,25 +74,7 @@ const AddNote = ({ navigation }) => {
   };
 
   const handleCancel = () => {
-    if (title || content || category) {
-      Alert.alert(
-        "Discard Changes",
-        "Are you sure you want to discard your changes?",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Discard",
-            onPress: () => navigation.goBack(),
-            style: "destructive",
-          },
-        ]
-      );
-    } else {
-      navigation.goBack();
-    }
+    router.push("/");
   };
   if (!user) {
     return <LoginPage />;
@@ -98,6 +85,12 @@ const AddNote = ({ navigation }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      <NotificationComponent
+        visible={notification}
+        message={"Note Added Successfully"}
+        title={"Success"}
+        onClose={() => setNotification(false)}
+      />
       <View style={styles.topBar}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Create New Note</Text>

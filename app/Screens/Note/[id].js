@@ -1,24 +1,22 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 
 import LoginPage from "../LoginPage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AlertComponent from "../../../components/AlertComponent";
+import NotificationComponent from "../../../components/NotificationComponent";
 
 const ViewNote = () => {
   const { notes, user, deleteNote, alert, setAlert, fetchNotes } =
     useContext(AuthContext);
+  const [notification, setNotification] = useState(false);
   const { id } = useLocalSearchParams();
   const selectedNote = notes.find((item) => item.id == (id || 1));
   const router = useRouter();
   const handleDelete = () => {
     deleteNote(id);
-    console.log({
-      message: "note deleted",
-      noteId: selectedNote.id,
-      notes: notes,
-    });
+    setNotification(true);
     fetchNotes();
     router.push("/");
     setAlert(false);
@@ -40,6 +38,12 @@ const ViewNote = () => {
         visible={alert}
         onClose={() => setAlert(false)}
         onConfirm={handleDelete}
+      />
+      <NotificationComponent
+        visible={notification}
+        onClose={() => setNotification(false)}
+        title={"Success"}
+        message={"The note is deleted successfully"}
       />
       <View style={styles.header}>
         <TouchableOpacity

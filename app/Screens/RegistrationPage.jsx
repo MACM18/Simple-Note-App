@@ -16,6 +16,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import AlertComponent from "../../components/AlertComponent";
+import NotificationComponent from "../../components/NotificationComponent";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
@@ -23,6 +24,8 @@ const RegistrationPage = () => {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const { register } = useContext(AuthContext);
   const [alertVisibility, setAlertVisibility] = useState(false);
+  const [notification, setNotification] = useState(false);
+  const [message, setMessage] = useState("Registration Successful");
   const router = useRouter();
   const scaleValue = useRef(new Animated.Value(0)).current;
 
@@ -52,8 +55,13 @@ const RegistrationPage = () => {
   });
 
   const handleRegistration = (values) => {
-    register(values.username, values.password);
-    router.push("/Screens/LoginPage");
+    if (register(values.username, values.password)) {
+      setNotification(true);
+      router.push("/Screens/LoginPage");
+    } else {
+      setMessage("Error with registration. Try with a different Name");
+      setNotification(true);
+    }
     setAlertVisibility(false);
   };
 
@@ -79,6 +87,12 @@ const RegistrationPage = () => {
         { backgroundColor: themeStyles.backgroundColor },
       ]}
     >
+      <NotificationComponent
+        title={"Registration"}
+        message={message}
+        visibility={notification}
+        onClose={() => setNotification(false)}
+      />
       <AlertComponent
         title={`Confirm user`}
         button={"Create"}

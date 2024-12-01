@@ -16,6 +16,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import LoginPage from "../../LoginPage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AlertComponent from "../../../../components/AlertComponent";
+import NotificationComponent from "../../../../components/NotificationComponent";
 
 const ModifyNote = () => {
   const { modifyNote, notes, user, alert, setAlert } = useContext(AuthContext);
@@ -28,6 +29,7 @@ const ModifyNote = () => {
   const [category, setCategory] = useState(selectedNote.category || "");
   const [priority, setPriority] = useState(selectedNote.priority || "medium");
   const [characterCount, setCharacterCount] = useState(content.length);
+  const [notification, setNotification] = useState(false);
   const router = useRouter();
   const priorities = ["low", "medium", "high"];
 
@@ -47,8 +49,8 @@ const ModifyNote = () => {
         lastModified: new Date().toISOString(),
       };
       modifyNote(selectedNote.id, updatedNote);
+      setNotification(true);
       setAlert(false);
-      console.log({ Success: "Note updated successfully!" });
       router.push("/Screens/HomePage");
     } else {
       setAlert(false);
@@ -78,6 +80,12 @@ const ModifyNote = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      <NotificationComponent
+        visible={notification}
+        message={"Note updated successfully"}
+        title={"Success"}
+        onClose={() => setNotification(false)}
+      />
       <AlertComponent
         visible={alert}
         description={"Do you want to discard the changes"}

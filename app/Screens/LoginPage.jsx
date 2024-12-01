@@ -14,6 +14,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import NotificationComponent from "../../components/NotificationComponent";
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext);
@@ -25,24 +26,13 @@ const LoginPage = () => {
   });
 
   const handleLogin = (values) => {
-    login(values.username, values.password);
-    router.push("/");
+    login(values.username, values.password)
+      ? router.push("/")
+      : Alert.alert("Invalid credentials");
   };
-
+  const [notification, setNotification] = useState(false);
   const handleClear = (resetForm) => {
-    Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Clear",
-        onPress: () => {
-          resetForm();
-        },
-        style: "destructive",
-      },
-    ]);
+    resetForm();
   };
 
   return (
@@ -50,6 +40,12 @@ const LoginPage = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      <NotificationComponent
+        title={"Try again!"}
+        message={"Invalid username or password"}
+        visible={notification}
+        onClose={() => setNotification(false)}
+      />
       <View style={styles.topBar}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Welcome Back</Text>
