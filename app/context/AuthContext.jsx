@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [users, setUsers] = useState([
     {
       username: "admin",
-      password: "admin",
+      password: "123456",
     },
   ]);
   const [alert, setAlert] = useState(false);
@@ -122,4 +122,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-

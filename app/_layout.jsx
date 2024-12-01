@@ -38,23 +38,23 @@ const _layout = () => {
         />
         <Tabs.Screen
           name='index'
-          options={{ tabBarItemStyle: { display: "none" } }}
+          options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
         />
         <Tabs.Screen
           name='Screens/LoginPage'
-          options={{ tabBarItemStyle: { display: "none" } }}
+          options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
         />
         <Tabs.Screen
           name='Screens/RegistrationPage'
-          options={{ tabBarItemStyle: { display: "none" } }}
+          options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
         />
         <Tabs.Screen
           name='Screens/Note/[id]'
-          options={{ tabBarItemStyle: { display: "none" } }}
+          options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
         />
         <Tabs.Screen
           name='Screens/Note/Edit/[id]'
-          options={{ tabBarItemStyle: { display: "none" } }}
+          options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
         />
       </Tabs>
     </AuthProvider>

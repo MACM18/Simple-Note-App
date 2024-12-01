@@ -16,20 +16,14 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import AlertComponent from "../../components/AlertComponent";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 const RegistrationPage = () => {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const { register } = useContext(AuthContext);
   const [alertVisibility, setAlertVisibility] = useState(false);
-
   const router = useRouter();
-
   const scaleValue = useRef(new Animated.Value(0)).current;
 
   const startAnimations = () => {
@@ -45,14 +39,22 @@ const RegistrationPage = () => {
     startAnimations();
   }, []);
 
-  const handleRegistration = () => {
-    if (password !== confirmPassword) {
-      setError("Passwords don't match");
-    } else {
-      register(username, password);
-      router.push("/Screens/LoginPage");
-      setAlertVisibility(false);
-    }
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    username: Yup.string().required("Username is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm Password is required"),
+  });
+
+  const handleRegistration = (values) => {
+    register(values.username, values.password);
+    router.push("/Screens/LoginPage");
+    setAlertVisibility(false);
   };
 
   const themeStyles = isDarkTheme
@@ -78,10 +80,10 @@ const RegistrationPage = () => {
       ]}
     >
       <AlertComponent
-        title={`Confirm user ${username}`}
+        title={`Confirm user`}
         button={"Create"}
         description={"Are you sure you want to create this account ?"}
-        onConfirm={handleRegistration}
+        onConfirm={() => handleRegistration()}
         onClose={() => setAlertVisibility(false)}
         visible={alertVisibility}
       />
@@ -112,93 +114,122 @@ const RegistrationPage = () => {
       </View>
 
       {/* Form Section */}
-      <View style={styles.form}>
-        <TextInput
-          placeholder='Name'
-          value={name}
-          onChangeText={setName}
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.inputBackgroundColor,
-              color: themeStyles.textColor,
-            },
-          ]}
-          placeholderTextColor={themeStyles.placeholderColor}
-        />
-        <TextInput
-          placeholder='Username'
-          value={username}
-          onChangeText={setUsername}
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.inputBackgroundColor,
-              color: themeStyles.textColor,
-            },
-          ]}
-          placeholderTextColor={themeStyles.placeholderColor}
-        />
-        <TextInput
-          placeholder='Email'
-          value={email}
-          onChangeText={setEmail}
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.inputBackgroundColor,
-              color: themeStyles.textColor,
-            },
-          ]}
-          placeholderTextColor={themeStyles.placeholderColor}
-          keyboardType='email-address'
-        />
-        <TextInput
-          placeholder='Password'
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.inputBackgroundColor,
-              color: themeStyles.textColor,
-            },
-          ]}
-          placeholderTextColor={themeStyles.placeholderColor}
-        />
-        <TextInput
-          placeholder='Confirm Password'
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.inputBackgroundColor,
-              color: themeStyles.textColor,
-            },
-          ]}
-          placeholderTextColor={themeStyles.placeholderColor}
-        />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Formik
+        initialValues={{
+          name: "",
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(values) => {
+          setAlertVisibility(true);
+        }}
+      >
+        {({ handleChange, handleBlur, values, errors, touched }) => (
+          <View style={styles.form}>
+            <TextInput
+              placeholder='Name'
+              value={values.name}
+              onChangeText={handleChange("name")}
+              onBlur={handleBlur("name")}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.inputBackgroundColor,
+                  color: themeStyles.textColor,
+                },
+              ]}
+              placeholderTextColor={themeStyles.placeholderColor}
+            />
+            {errors.name && touched.name && (
+              <Text style={styles.errorText}>{errors.name}</Text>
+            )}
 
-        {/* Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.registerButton]}
-            onPress={() => setAlertVisibility(true)}
-          >
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.backButton]}
-            onPress={() => router.push("/Screens/LoginPage")}
-          >
-            <Text style={styles.buttonText}>Back to Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <TextInput
+              placeholder='Username'
+              value={values.username}
+              onChangeText={handleChange("username")}
+              onBlur={handleBlur("username")}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.inputBackgroundColor,
+                  color: themeStyles.textColor,
+                },
+              ]}
+              placeholderTextColor={themeStyles.placeholderColor}
+            />
+            {errors.username && touched.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
+
+            <TextInput
+              placeholder='Email'
+              value={values.email}
+              onChangeText={handleChange("email")}
+              onBlur={handleBlur("email")}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.inputBackgroundColor,
+                  color: themeStyles.textColor,
+                },
+              ]}
+              placeholderTextColor={themeStyles.placeholderColor}
+            />
+            {errors.email && touched.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+
+            <TextInput
+              placeholder='Password'
+              value={values.password}
+              onChangeText={handleChange("password")}
+              onBlur={handleBlur("password")}
+              secureTextEntry
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.inputBackgroundColor,
+                  color: themeStyles.textColor,
+                },
+              ]}
+              placeholderTextColor={themeStyles.placeholderColor}
+            />
+            {errors.password && touched.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+
+            <TextInput
+              placeholder='Confirm Password'
+              value={values.confirmPassword}
+              onChangeText={handleChange("confirmPassword")}
+              onBlur={handleBlur("confirmPassword")}
+              secureTextEntry
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.inputBackgroundColor,
+                  color: themeStyles.textColor,
+                },
+              ]}
+              placeholderTextColor={themeStyles.placeholderColor}
+            />
+            {errors.confirmPassword && touched.confirmPassword && (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+            )}
+
+            <TouchableOpacity
+              onPress={() => handleRegistration(values)}
+              style={styles.submitButton}
+            >
+              <Text style={styles.submitButtonText}>Register</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Formik>
     </KeyboardAvoidingView>
   );
 };
@@ -206,76 +237,45 @@ const RegistrationPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    marginBottom: 20,
   },
   headerText: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
   },
   headerSubText: {
     fontSize: 16,
-    fontStyle: "italic",
   },
   themeToggle: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    marginTop: 10,
   },
   form: {
     flex: 1,
-    padding: 16,
   },
   input: {
     height: 50,
-    borderColor: "#ddd",
     borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
-  error: {
-    color: "#FF5252",
-    marginBottom: 12,
-    textAlign: "center",
+  errorText: {
+    color: "red",
+    fontSize: 12,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
-  },
-  button: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    marginHorizontal: 4,
-  },
-  registerButton: {
+  submitButton: {
     backgroundColor: "#3949ab",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
   },
-  backButton: {
-    backgroundColor: "#3949ab",
-  },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 16,
+  submitButtonText: {
+    color: "#ffffff",
     fontWeight: "bold",
   },
 });

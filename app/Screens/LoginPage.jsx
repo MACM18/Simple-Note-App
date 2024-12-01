@@ -12,42 +12,37 @@ import {
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (username.trim() && password.trim()) {
-      login(username.trim(), password.trim());
-      router.push("/");
-    } else {
-      Alert.alert("Error", "Please fill in all fields");
-    }
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().required("Username is required").trim(),
+    password: Yup.string().required("Password is required").trim(),
+  });
+
+  const handleLogin = (values) => {
+    login(values.username, values.password);
+    router.push("/");
   };
 
-  const handleClear = () => {
-    if (username || password) {
-      Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
-        {
-          text: "Cancel",
-          style: "cancel",
+  const handleClear = (resetForm) => {
+    Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Clear",
+        onPress: () => {
+          resetForm();
         },
-        {
-          text: "Clear",
-          onPress: () => {
-            setUsername("");
-            setPassword("");
-            setError("");
-          },
-          style: "destructive",
-        },
-      ]);
-    }
+        style: "destructive",
+      },
+    ]);
   };
 
   return (
@@ -60,70 +55,91 @@ const LoginPage = () => {
           <Text style={styles.headerText}>Welcome Back</Text>
           <Text style={styles.headerSubText}>Sign in to continue...</Text>
         </View>
-        <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-          <Text style={styles.clearButtonText}>Clear</Text>
-        </TouchableOpacity>
       </View>
-
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            placeholder='Enter your username'
-            value={username}
-            onChangeText={setUsername}
-            style={styles.input}
-            placeholderTextColor='#666'
-            autoCapitalize='none'
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              placeholder='Enter your password'
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              style={styles.passwordInput}
-              placeholderTextColor='#666'
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Text style={styles.eyeIconText}>
-                {showPassword ? "👁️" : "👁️‍🗨️"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
-            onPress={handleLogin}
-          >
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.registerButton]}
-            onPress={() => router.push("/Screens/RegistrationPage")}
-          >
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={styles.forgotPassword}
-          onPress={() => "Remember the password Idiot"}
+      <View>
+        <Formik
+          initialValues={{ username: "", password: "" }}
+          validationSchema={validationSchema}
+          onSubmit={handleLogin}
         >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+            resetForm,
+          }) => (
+            <>
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => handleClear(resetForm)}
+              >
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
+
+              <View style={styles.formContainer}>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Username</Text>
+                  <TextInput
+                    placeholder='Enter your username'
+                    value={values.username}
+                    onChangeText={handleChange("username")}
+                    onBlur={handleBlur("username")}
+                    style={styles.input}
+                    placeholderTextColor='#666'
+                    autoCapitalize='none'
+                  />
+                  {errors.username && touched.username && (
+                    <Text style={styles.error}>{errors.username}</Text>
+                  )}
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Password</Text>
+                  <TextInput
+                    placeholder='Enter your password'
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    secureTextEntry={true}
+                    style={styles.input}
+                    placeholderTextColor='#666'
+                  />
+                  {errors.password && touched.password && (
+                    <Text style={styles.error}>{errors.password}</Text>
+                  )}
+                </View>
+
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.loginButton]}
+                    onPress={handleSubmit}
+                  >
+                    <Text style={styles.buttonText}>Login</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.button, styles.registerButton]}
+                    onPress={() => router.push("/Screens/RegistrationPage")}
+                  >
+                    <Text style={styles.buttonText}>Register</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.forgotPassword}
+                  onPress={() => "Remember the password Idiot"}
+                >
+                  <Text style={styles.forgotPasswordText}>
+                    Forgot Password?
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </Formik>
       </View>
     </KeyboardAvoidingView>
   );
