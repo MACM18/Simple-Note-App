@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { Appearance } from "react-native";
 
 export const AuthContext = createContext();
 
@@ -17,6 +18,9 @@ export const AuthProvider = ({ children }) => {
     },
   ]);
   const [alert, setAlert] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+    Appearance.getColorScheme() === "dark"
+  );
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -26,6 +30,11 @@ export const AuthProvider = ({ children }) => {
         fetchUserNotes(JSON.parse(storedUser).username); // Fetch notes for the logged-in user
       }
       setLoading(false);
+      const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+        setIsDarkMode(colorScheme === "dark");
+      });
+
+      return () => subscription.remove();
     };
 
     checkAuthStatus();
@@ -106,9 +115,11 @@ export const AuthProvider = ({ children }) => {
         alert,
         setAlert,
         fetchNotes,
+        isDarkMode,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
+

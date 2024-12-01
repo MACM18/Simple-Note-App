@@ -1,7 +1,7 @@
 import HomePage from "./Screens/HomePage";
 
-const Home = () => {
+const App = () => {
   return <HomePage />;
 };
 
-export default Home;
+export default App;

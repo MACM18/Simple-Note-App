@@ -13,6 +13,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import LoginPage from "./LoginPage";
 import AlertComponent from "../../components/AlertComponent";
+
 const HomePage = () => {
   const { user, notes, logout, loading, fetchNotes } = useContext(AuthContext);
   const router = useRouter();
