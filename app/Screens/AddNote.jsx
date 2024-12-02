@@ -16,7 +16,7 @@ import NotificationComponent from "../../components/NotificationComponent";
 import LoginPage from "./LoginPage";
 import { useRouter } from "expo-router";
 
-const AddNote = ({ navigation }) => {
+const AddNote = ({}) => {
   const { addNote, user } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -42,7 +42,7 @@ const AddNote = ({ navigation }) => {
       };
       addNote(newNote);
       setNotification(true);
-      navigation.navigate("Home");
+      router.push("/");
     } else {
       Alert.alert("Error", "Title and content are required!");
     }
