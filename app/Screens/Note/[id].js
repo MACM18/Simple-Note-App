@@ -8,12 +8,12 @@ import AlertComponent from "../../../components/AlertComponent";
 import NotificationComponent from "../../../components/NotificationComponent";
 
 const ViewNote = () => {
-  const { notes, user, deleteNote, alert, setAlert, fetchNotes } =
-    useContext(AuthContext);
+  const { notes, user, deleteNote, fetchNotes } = useContext(AuthContext);
   const [notification, setNotification] = useState(false);
   const { id } = useLocalSearchParams();
   const selectedNote = notes.find((item) => item.id == (id || 1));
   const router = useRouter();
+  const [alert, setAlert] = useState(false);
   const handleDelete = () => {
     deleteNote(id);
     setNotification(true);

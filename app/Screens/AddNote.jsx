@@ -54,23 +54,11 @@ const AddNote = ({}) => {
   };
 
   const handleClear = () => {
-    Alert.alert("Clear Form", "Are you sure you want to clear all fields?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Clear",
-        onPress: () => {
-          setTitle("");
-          setContent("");
-          setCategory("");
-          setPriority("medium");
-          setCharacterCount(0);
-        },
-        style: "destructive",
-      },
-    ]);
+    setTitle("");
+    setContent("");
+    setCategory("");
+    setPriority("medium");
+    setCharacterCount(0);
   };
 
   const handleCancel = () => {
