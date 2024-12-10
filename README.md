@@ -60,8 +60,7 @@ This project was built using the following libraries and tools:
 
 - Expo
 - React Native
-- TypeScript
 - Express
-- Jest
-- ESLint
-- Prettier
+- formik
+- yup
+- axios
