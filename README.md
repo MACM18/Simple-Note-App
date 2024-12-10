@@ -7,7 +7,7 @@
 To get started, clone this repository and navigate to the project directory:
 
 ```bash
-git clone https://github.com/your-username/newICA.git
+git clone https://github.com//MACM18/Simple-Note-App.git
 cd newICA
 ```
 
