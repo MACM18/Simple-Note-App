@@ -48,7 +48,7 @@ const LoginPage = () => {
       />
       <View style={styles.topBar}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Welcome Back</Text>
+          <Text style={styles.headerText}>Welcome!!</Text>
           <Text style={styles.headerSubText}>Sign in to continue...</Text>
         </View>
       </View>
