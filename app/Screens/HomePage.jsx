@@ -1,140 +1,354 @@
-// Full Note Application Code
-// Required dependencies: React Native, Expo, React Navigation, Context API, AsyncStorage
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  Platform,
+} from "react-native";
+import { AuthContext } from "../context/AuthContext";
+import { useRouter } from "expo-router";
+import LoginPage from "./LoginPage";
+import AlertComponent from "../../components/AlertComponent";
 
-// Install required packages before running this code:
-// npm install @react-navigation/native @react-navigation/stack react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated expo-splash-screen expo-constants expo-font
+const HomePage = () => {
+  const { user, notes, logout, loading, fetchNotes } = useContext(AuthContext);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  //   useEffect(() => {
+  //     if (!loading && user == null) {
+  //       router.push("/Screens/LoginPage");
+  //     }
+  //   }, [user, loading]);
 
-// App.js
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NotesProvider } from './context/NotesContext';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen';
-import AddNoteScreen from './screens/AddNoteScreen';
-import ViewNoteScreen from './screens/ViewNoteScreen';
-
-const Stack = createStackNavigator();
-
-export default function App() {
-  return (
-    <NotesProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="AddNote" component={AddNoteScreen} />
-          <Stack.Screen name="ViewNote" component={ViewNoteScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </NotesProvider>
-  );
-}
-
-// context/NotesContext.js
-import React, { createContext, useState } from 'react';
-
-export const NotesContext = createContext();
-
-export const NotesProvider = ({ children }) => {
-  const [users, setUsers] = useState([]); // Stores user details
-  const [currentUser, setCurrentUser] = useState(null); // Currently logged-in user
-  const [notes, setNotes] = useState([]); // Stores notes
-
-  return (
-    <NotesContext.Provider value={{ users, setUsers, currentUser, setCurrentUser, notes, setNotes }}>
-      {children}
-    </NotesContext.Provider>
-  );
-};
-
-// screens/LoginScreen.js
-import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { NotesContext } from '../context/NotesContext';
-
-export default function LoginScreen({ navigation }) {
-  const { users, setCurrentUser } = useContext(NotesContext);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    const user = users.find((u) => u.username === username && u.password === password);
-    if (user) {
-      setCurrentUser(user);
-      navigation.navigate('Home');
-    } else {
-      Alert.alert('Error', 'Invalid username or password');
-    }
+  const [modalVisible, setModalVisible] = useState(false);
+  const handleLogout = () => {
+    setModalVisible(true); // Show the modal
   };
 
+  const logoutFunction = () => {
+    // Your logout logic here
+    console.log("User  logged out");
+    setModalVisible(false); // Close the modal after logout
+    logout();
+    router.push("/Screens/LoginPage");
+  };
+
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size='large' color='#3949ab' />
+        <Text style={styles.loadingText}>Loading your notes...</Text>
+      </View>
+    );
+  }
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  const getPriorityColor = (priority) => {
+    switch (priority?.toLowerCase()) {
+      case "high":
+        return "#FF5252";
+      case "medium":
+        return "#FFC107";
+      case "low":
+        return "#4CAF50";
+      default:
+        return "#FFC107";
+    }
+  };
+  const refreshNotes = () => {
+    fetchNotes();
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+      <AlertComponent
+        title={"Logout"}
+        button={"Logout"}
+        description={"Are you sure you want to logout?"}
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)} // Close modal without logging out
+        onConfirm={logoutFunction} // Call logout function
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Don’t have an account? Register</Text>
+      <View style={styles.topBar}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Welcome, {user?.username}!</Text>
+          <Text style={styles.headerSubText}>Your Personal Notes</Text>
+        </View>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder='Search notes...'
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor='#666'
+        />
+      </View>
+      <View style={styles.refresh}>
+        <TouchableOpacity style={styles.refreshBtn} onPress={refreshNotes}>
+          <Text>Refresh</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.scrollView}>
+        {filteredNotes.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No notes found</Text>
+            <Text style={styles.emptyStateSubText}>
+              {searchQuery
+                ? "Try a different search term"
+                : "Start creating your first note!"}
+            </Text>
+          </View>
+        ) : (
+          filteredNotes.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.noteCard}
+              onPress={() => router.push(`/Screens/Note/${item.id}`)}
+            >
+              <View style={styles.noteHeader}>
+                <Text style={styles.noteTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <View
+                  style={[
+                    styles.priorityIndicator,
+                    { backgroundColor: getPriorityColor(item.priority) },
+                  ]}
+                />
+              </View>
+
+              {item.category && (
+                <Text style={styles.categoryText}>{item.category}</Text>
+              )}
+
+              <Text style={styles.noteContent} numberOfLines={2}>
+                {item.content}
+              </Text>
+
+              <Text style={styles.dateText}>{item.status}</Text>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => router.push("/Screens/AddNote")}
+      >
+        <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
-  input: {
-    width: '80%',
-    padding: 10,
-    marginVertical: 10,
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#3949ab",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  header: {
+    flex: 1,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ffffff",
+    marginBottom: 4,
+  },
+  headerSubText: {
+    fontSize: 14,
+    color: "#e3f2fd",
+    fontStyle: "italic",
+  },
+  logoutButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    backgroundColor: '#fff',
+    borderColor: "rgba(255, 255, 255, 0.3)",
   },
-  button: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-    width: '80%',
-    alignItems: 'center',
+  logoutButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "500",
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  searchContainer: {
+    padding: 16,
+    paddingBottom: 8,
   },
-  link: {
-    color: '#007BFF',
-    marginTop: 10,
+  searchInput: {
+    height: 40,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  scrollView: {
+    flex: 1,
+    padding: 16,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#666",
+    marginBottom: 8,
+  },
+  emptyStateSubText: {
+    fontSize: 14,
+    color: "#999",
+  },
+  noteCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 2,
+  },
+  noteHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  noteTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    flex: 1,
+  },
+  priorityIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+    fontStyle: "italic",
+  },
+  noteContent: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 12,
+    color: "#999",
+    textAlign: "right",
+  },
+  addButton: {
+    position: "absolute",
+    right: 20,
+    bottom: Platform.OS === "ios" ? 40 : 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#3949ab",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  addButtonText: {
+    fontSize: 32,
+    color: "#fff",
+    marginTop: -2,
+  },
+  refresh: {
+    padding: 16,
+    display: "flex",
+    alignItems: "flex-end",
+  },
+  refreshBtn: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 2,
   },
 });
 
-// Remaining Screens (RegisterScreen.js, HomeScreen.js, AddNoteScreen.js, ViewNoteScreen.js) will follow a similar structure with styles and animations included.
-
-// Let me know if you want the rest of the screens completed in this file or provided separately!
+export default HomePage;
